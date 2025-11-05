@@ -1,0 +1,121 @@
+-- 1️⃣ Users Table (UUID primary key + numeric counter)
+CREATE TABLE users (
+  number_id INT AUTO_INCREMENT UNIQUE,
+  id CHAR(36) NOT NULL PRIMARY KEY,            -- UUID
+  name VARCHAR(255),
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('institute', 'admin') DEFAULT 'institute',
+  is_verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 2️⃣ Email Verification Tokens
+CREATE TABLE email_verification_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id CHAR(36) NOT NULL,
+  token VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 3️⃣ Refresh Tokens (for session management)
+CREATE TABLE refresh_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id CHAR(36) NOT NULL,
+  token VARCHAR(512) NOT NULL,
+  ip VARCHAR(50),
+  user_agent VARCHAR(255),
+  revoked BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 4️⃣ Institutes Table (linked to user UUID)
+CREATE TABLE institutes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id CHAR(36) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  address TEXT,
+  year_founded YEAR,
+  start_date DATE,
+  required_trade VARCHAR(255),
+  status ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 5️⃣ Staff Table
+CREATE TABLE staff (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  institute_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  qualification VARCHAR(255),
+  trade VARCHAR(255),
+  salary DECIMAL(10,2),
+  cell_number VARCHAR(20),
+  agreement_file VARCHAR(255),
+  is_permanent BOOLEAN DEFAULT FALSE,
+  FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+);
+
+-- 6️⃣ Finance Table
+CREATE TABLE finance (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  institute_id INT NOT NULL,
+  has_endowment_fund BOOLEAN DEFAULT FALSE,
+  fund_balance DECIMAL(10,2),
+  income_sources TEXT,
+  expected_income DECIMAL(10,2),
+  estimated_expense DECIMAL(10,2),
+  FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+);
+
+-- 7️⃣ Building Table
+CREATE TABLE building (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  institute_id INT NOT NULL,
+  ownership ENUM('Owned','Leased','Rented') DEFAULT 'Owned',
+  lease_copy VARCHAR(255),
+  num_classrooms INT,
+  is_equipped BOOLEAN DEFAULT FALSE,
+  is_electrified BOOLEAN DEFAULT FALSE,
+  building_map VARCHAR(255),
+  FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+);
+
+-- 8️⃣ Equipment Table
+CREATE TABLE equipment (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  institute_id INT NOT NULL,
+  category ENUM('Laboratory','AppliedTrade','Library','Furniture'),
+  name VARCHAR(255),
+  specification TEXT,
+  quantity INT,
+  amount_spent DECIMAL(10,2),
+  future_budget DECIMAL(10,2),
+  FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+);
+
+-- 9️⃣ Owners Table
+CREATE TABLE owners (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  institute_id INT NOT NULL,
+  partner_name VARCHAR(255),
+  cnic VARCHAR(20),
+  signature_file VARCHAR(255),
+  FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+);
+
+-- 🔟 Attachments Table
+CREATE TABLE attachments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  institute_id INT NOT NULL,
+  document_name VARCHAR(255),
+  file_path VARCHAR(255),
+  page_number INT,
+  FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE
+);
