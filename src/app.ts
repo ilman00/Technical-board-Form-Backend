@@ -19,10 +19,16 @@ export const app = express();
 app.use(
   cors({
     origin: ["http://localhost:3000", "http://localhost:5173" , "https://ttb.digipakistan.com"], // allowed origins
-    methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
+    methods: ["GET", "POST", "PUT", "DELETE",  'OPTIONS', 'PATCH'], // allowed methods
     credentials: true, // allow cookies if needed
   })
 );
+
+app.options("*", cors({
+  origin: ["http://localhost:3000", "http://localhost:5173", "https://ttb.digipakistan.com"],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  credentials: true
+}))
 
 app.use(express.json());
 app.use(cookieParser());
