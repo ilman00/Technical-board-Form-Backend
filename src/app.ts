@@ -6,13 +6,23 @@ import generalInfo from "./routes/generalInfoRoute"
 import staffInfo from "./routes/staffInfoRoute"
 import financialInfo from "./routes/financialInfoRoute"
 import buildingInfo from "./routes/buildingInfoRoute"
+import equipmentInfo from "./routes/equipmentInfoRoute"
+import cors from "cors";
+
+
 
 import { db } from "./config/db";
 
 export const app = express();
 
 
-
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:5173" , "https://ttb.digipakistan.com"], // allowed origins
+    methods: ["GET", "POST", "PUT", "DELETE"], // allowed methods
+    credentials: true, // allow cookies if needed
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -27,14 +37,14 @@ app.use("/api", generalInfo)
 app.use("/api", staffInfo)
 app.use("/api", financialInfo)
 app.use("/api", buildingInfo)
+app.use("/api", equipmentInfo)
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
-app.get("/api", authenticate, (req: Request, res: Response) => {
-  const user = req.user?.userId
-  res.send({message: "Hello TypeScript + Node.js!", user});
+app.get("/", (req: Request, res: Response) => {
+  res.send({message: "Hello TypeScript + Node.js!"});
 });
 
 

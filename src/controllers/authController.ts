@@ -45,6 +45,8 @@ export async function register(req: Request, res: Response) {
       [userId, token, expiresAt]
     );
 
+    await conn.query("INSERT INTO affiliation_forms (user_id, created_at) VALUES (?, NOW() )", [userId]);
+
     await sendVerificationEmail(email, token);
 
     res.json({ message: "User registered. Please verify your email." });
@@ -76,7 +78,6 @@ export async function verifyEmail(req: Request, res: Response) {
 
     await conn.query("UPDATE users SET is_verified = 1 WHERE id = ?", [record.user_id]);
     await conn.query("UPDATE email_verification_tokens SET used = 1 WHERE id = ?", [record.id]);
-
     res.json({ message: "Email verified successfully." });
   } catch (err) {
     console.error(err);
