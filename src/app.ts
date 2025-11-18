@@ -7,6 +7,9 @@ import staffInfo from "./routes/staffInfoRoute"
 import financialInfo from "./routes/financialInfoRoute"
 import buildingInfo from "./routes/buildingInfoRoute"
 import equipmentInfo from "./routes/equipmentInfoRoute"
+import instituteDocs from "./routes/InstituteDocRoute"
+import partnerInfo from "./routes/partnerInfoRoute"
+
 import cors from "cors";
 
 
@@ -24,11 +27,7 @@ app.use(
   })
 );
 
-app.options("*", cors({
-  origin: ["http://localhost:3000", "http://localhost:5173", "https://ttb.digipakistan.com"],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  credentials: true
-}))
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -44,6 +43,8 @@ app.use("/api", staffInfo)
 app.use("/api", financialInfo)
 app.use("/api", buildingInfo)
 app.use("/api", equipmentInfo)
+app.use("/api", instituteDocs)
+app.use("/api", partnerInfo)
 
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
